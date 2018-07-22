@@ -29,6 +29,10 @@ module.exports = class EasyRestful {
 
     get log() { return this.log.toString(); }
 
+    close() {
+        this.dbserver.close();
+    }
+    
     register(HTTPMethod, regax, callback) {
         if (typeof regax === 'function') {
             callback = regax; regax = HTTPMethod; HTTPMethod = 'GET';

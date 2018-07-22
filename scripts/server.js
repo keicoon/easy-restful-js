@@ -35,9 +35,10 @@ module.exports = class EasyRestfulServer {
             if (this.isValid(key) === false) {
                 resonse.to('wrong address');
             } else {
-                const message = callback(this.db, reqest.params);
-                DEBUG && this.log.log(`[${HTTPMethod}] ${regax} -> ${message}`);
-                resonse.to(message);
+                callback(message => {
+                    DEBUG && this.log.log(`[${HTTPMethod}] ${regax} -> ${message}`);
+                    resonse.to(message);
+                }, reqest.params, this.db);
             }
         }
         if (this.adaptor[HTTPMethod] === undefined) {

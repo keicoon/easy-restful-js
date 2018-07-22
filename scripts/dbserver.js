@@ -4,7 +4,7 @@ const DEBUG = util.getConfig('isdebug');
 module.exports = class EasyRestfulDBServer {
     constructor(port) {
         this.log = util.get('log');
-          // optional
+        // optional
         this.usingPromise = false;
         this.usingSave = true;
 
@@ -23,10 +23,6 @@ module.exports = class EasyRestfulDBServer {
 
         this.client.end(true);
         this.server.close();
-    }
-
-    isServerValid() {
-        return this.server !== undefined;
     }
 
     get_callback(callback, key) {
@@ -56,8 +52,12 @@ module.exports = class EasyRestfulDBServer {
         });
     }
 
+    _isServerValid() {
+        return this.server !== undefined;
+    }
+
     _openServer(port) {
-        if (isServerValid()) return;
+        if (this._isServerValid()) return;
 
         const RedisServer = require('redis-server');
         this.server = new RedisServer(port);
@@ -65,7 +65,7 @@ module.exports = class EasyRestfulDBServer {
         this.server.open(err => {
             this.log.log(`[redis-server] open failed in port ${port} : ${err}.`);
         })
-        
+
         this._loadServer();
     }
 
