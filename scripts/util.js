@@ -1,8 +1,8 @@
-const config = {};
+const _global = {};
 module.exports = {
     generateHashKey: (string) => {
         return 'hashKey';
     },
-    setConfig: (key, value) => (config[key] = value),
-    getConfig: (key) => (config[key])
+    set: (key, value) => (_global[key] = value),
+    get: (key) => (_global[key])
 }

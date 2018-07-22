@@ -1,16 +1,16 @@
 
 const EasyRestful = require('easy-restful.js').default;
 /* TestCase 'start listen' and get text */
-const key = EasyRestful.register('/hello', () => {
+const key = EasyRestful.register('/hello', (db) => {
     return 'hello restful api world';
 });
 /* TestCase 'stop listen' */
-EasyRestful.register('/stophello', () => {
+EasyRestful.register('/stophello', (db) => {
     EasyRestful.unrgister(key);
     return 'success: stophello';
 });
 /* TestCase 'stop listen' and get json */
-EasyRestful.register('/test', () => {
+EasyRestful.register('/test', (db) => {
     return {
         type: 'json',
         content: JSON.stringify({ "a": 1, "b": "bb" })
@@ -32,6 +32,6 @@ EasyRestful.register('/dbGet', (db) => {
     };
 });
 /* TestCase log */
-EasyRestful.register('/log', () => {
+EasyRestful.register('/log', (db) => {
     return EasyRestful.log;
 });

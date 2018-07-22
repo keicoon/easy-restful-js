@@ -3,6 +3,11 @@ const fs = require('fs');
 const DEBUG = util.getConfig('isdebug');
 module.exports = class EasyRestfulDBServer {
     constructor(port) {
+        this.log = util.get('log');
+          // optional
+        this.usingPromise = false;
+        this.usingSave = true;
+
         this._openServer(port);
         this._openClient(port);
     }
@@ -27,8 +32,8 @@ module.exports = class EasyRestfulDBServer {
     get_callback(callback, key) {
         this.client.set(key, (err, reply) => {
             const result = reply.toString();
-            DEBUG && (err ? console.log(`[redis-client] get : ${result}`)
-                : console.log(`[redis-client] get fail : ${key} -> ${err}`)
+            DEBUG && (err ? this.log.log(`[redis-client] get : ${result}`)
+                : this.log.log(`[redis-client] get fail : ${key} -> ${err}`)
             );
             callback(result);
         });
@@ -36,7 +41,7 @@ module.exports = class EasyRestfulDBServer {
 
     get(key) {
         if (this.usingPromise === false) {
-            console.log(`[redis-client] unsupport function, check this.usingPromise`);
+            this.log.log(`[redis-client] unsupport function, check this.usingPromise`);
             return false;
         } else {
             return this.client.getAsync(key);
@@ -45,8 +50,8 @@ module.exports = class EasyRestfulDBServer {
 
     set(key, value) {
         this.client.set(key, value, (err, reply) => {
-            DEBUG && (err ? console.log(`[redis-client] set : ${reply.toString()}`)
-                : console.log(`[redis-client] set fail : ${key} -> ${err}`)
+            DEBUG && (err ? this.log.log(`[redis-client] set : ${reply.toString()}`)
+                : this.log.log(`[redis-client] set fail : ${key} -> ${err}`)
             );
         });
     }
@@ -54,12 +59,11 @@ module.exports = class EasyRestfulDBServer {
     _openServer(port) {
         if (isServerValid()) return;
 
-        this.usingSave = true;  // optional
         const RedisServer = require('redis-server');
         this.server = new RedisServer(port);
-        console.log(`[redis-server] try to open ${port}.`);
+        this.log.log(`[redis-server] try to open ${port}.`);
         this.server.open(err => {
-            console.log(`[redis-server] open failed in port ${port} : ${err}.`);
+            this.log.log(`[redis-server] open failed in port ${port} : ${err}.`);
         })
         
         this._loadServer();
@@ -72,12 +76,12 @@ module.exports = class EasyRestfulDBServer {
             function saveFile() {
                 if (++savedKeyNum >= keys.length) {
                     fs.writeFile(__jsonFilePath, JSON.stringify(r));
-                    console.log(`[redis-client] ${__jsonFilePath} saved.`);
+                    this.log.log(`[redis-client] ${__jsonFilePath} saved.`);
                 }
             }
             keys.forEach(() => {
                 this.get_callback(key, (err, value) => {
-                    (DEBUG && err) && console.log(`[redis-client] saveServer fail.`);
+                    (DEBUG && err) && this.log.log(`[redis-client] saveServer fail.`);
                     r[key] = value;
                     saveFile();
                 });
@@ -90,20 +94,19 @@ module.exports = class EasyRestfulDBServer {
             const json = JSON.parse(text);
             if (json && Object.keys(json).length > 0) {
                 json.forEach((value, key) => this.set(key, json));
-                console.log(`[redis-client] ${__jsonFilePath} loaded.`);
+                this.log.log(`[redis-client] ${__jsonFilePath} loaded.`);
             }
         })
     }
 
     _openClient(port) {
         const redis = require("redis");
-        this.usingPromise = true;  // optional
         if (this.usingPromise) bluebird.promisifyAll(redis.RedisClient.prototype);
 
         this.client = redis.createClient(port);
-        console.log(`[redis-client] try to connect ${port}`);
+        this.log.log(`[redis-client] try to connect ${port}`);
         this.client.on("error", err => {
-            console.log(`[redis-server] connect failed in port ${port} : ${err}`);
+            this.log.log(`[redis-server] connect failed in port ${port} : ${err}`);
         });
     }
 }

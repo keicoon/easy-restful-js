@@ -1,7 +1,9 @@
 const util = require('util');
 const DEBUG = util.getConfig('isdebug');
+
 module.exports = class EasyRestfulServer {
     constructor(port, serverAdaptorClass) {
+        this.log = util.get('log');
         this.adaptor = new serverAdaptorClass(port);
         this.blacklist = new Map();
         return this;
@@ -14,6 +16,8 @@ module.exports = class EasyRestfulServer {
     static get defaultServerAdaptorClass() {
         return ServerAdaptor;
     }
+
+    set DB(dbServer) { this.db = dbServer; }
 
     isValid(hashKey) {
         return !this.blacklist[hashKey];
@@ -31,13 +35,13 @@ module.exports = class EasyRestfulServer {
             if (this.isValid(key) === false) {
                 resonse.to('wrong address');
             } else {
-                const message = callback(reqest.params);
-                DEBUG && console.log(`[${HTTPMethod}] ${regax} -> ${message}`);
+                const message = callback(this.db, reqest.params);
+                DEBUG && this.log.log(`[${HTTPMethod}] ${regax} -> ${message}`);
                 resonse.to(message);
             }
         }
         if (this.adaptor[HTTPMethod] === undefined) {
-            DEBUG && console.log(`unsupport command ${HTTPMethod}`);
+            DEBUG && this.log.log(`unsupport command ${HTTPMethod}`);
         } else {
             this.adaptor[HTTPMethod](regax, warppingCallback);
         }
@@ -56,7 +60,7 @@ class ExpressServerAdaptor extends ServerAdaptor {
         const express = require('express');
         this.app = express();
         this.server = this.app.listen(port, () => {
-            console.log("Express server has started on port", port)
+            this.log.log("Express server has started on port", port)
         });
         return this;
     }
