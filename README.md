@@ -2,11 +2,10 @@
 [![npm](https://img.shields.io/npm/v/pixel-js-k.svg)](https://www.npmjs.com/package/easy-restful)
 [![travis](https://travis-ci.org/keicoon/easy-restful.js.svg?branch=master)](https://travis-ci.org/keicoon/easy-restful.js)
 ## Features
-- Provice simple design to resultful service and support `npm` module
-- Simple interface
-- support customize `server`, `db-server`
-- default server `express`
-- default db-server `redis`
+- Provice simple design to restful-api service and support `npm` module.
+- Support customize `server`, `db-server`.
+    - Using default server `express`.
+    - Using default db-server `redis`.
 ## Install
 ```
 npm i easy-restful
@@ -61,7 +60,5 @@ EasyRestful.register('/log', function (resolve, reject) {
 ```
 ### close
 ```
-EasyRestful.register('/exit', function (resolve, reject) {
-    EasyRestful.close();
-});
+EasyRestful.close();
 ```
