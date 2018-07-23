@@ -4,9 +4,24 @@
   "description": "easy restful-api server",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "setup": "brew install redis",
+    "test": "NODE_PATH=lib node test"
   },
-  "author": "keicoon15",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/keicoon/easy-restful.js"
+  },
+  "keywords": [
+    "restful",
+    "restfulapi"
+  ],
+  "author": {
+    "name": "keicoon15",
+    "email": "keicoon15@gmail.com"
+  },
+  "engines": {
+    "node": ">= 8.11.3"
+  },
   "license": "MIT",
   "dependencies": {
     "express": "^4.16.3",
