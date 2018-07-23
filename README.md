@@ -1,6 +1,6 @@
 # EASY_RESTFUL.JS
-[![npm](https://img.shields.io/npm/v/pixel-js-k.svg)](https://www.npmjs.com/package/pixel-js-k)
-![travis](https://travis-ci.org/keicoon/easy-restful.js.svg?branch=master)  
+[![npm](https://img.shields.io/npm/v/pixel-js-k.svg)](https://www.npmjs.com/package/easy-restful)
+[![travis](https://travis-ci.org/keicoon/easy-restful.js.svg?branch=master)](https://travis-ci.org/keicoon/easy-restful.js)
 ## Features
 - Provice simple design to resultful service and support `npm` module
 - Simple interface
