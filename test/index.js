@@ -1,5 +1,8 @@
 
 const EasyRestful = require('../../easy-restful.js').default;
+// const EasyRestful = require('../../easy-restful.js').get({
+//     "redis-server-bin-path": '/opt/local/bin/redis-server'
+// });
 /* TestCase 'start listen' and get text */
 const key = EasyRestful.register('/hello', function (resolve, reject) {
     resolve('hello restful api world');

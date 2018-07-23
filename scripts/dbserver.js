@@ -63,15 +63,20 @@ module.exports = class EasyRestfulDBServer {
         if (this._isServerValid()) return;
 
         const RedisServer = require('redis-server');
-        const bin = '/Users/jo/Downloads/redis-server';
+        const bin = util.get('redis-server-bin-path');
         log.log(`[redis-server] try to open ${port} ${bin}.`);
-        this.server = new RedisServer({ port, bin });
-        this.server.open(err => {
-            (err === null) ? log.log(`[redis-server] open success in port ${port}.`)
-                : log.log(`[redis-server] open failed in port ${port} : ${err}.`)
-        })
+        if (bin === undefined) {
+            log.log(`[redis-server] invalid bin path.`);
+            return;
+        } else {
+            this.server = new RedisServer({ port, bin });
+            this.server.open(err => {
+                (err === null) ? log.log(`[redis-server] open success in port ${port}.`)
+                    : log.log(`[redis-server] open failed in port ${port} : ${err}.`)
+            })
 
-        this._loadServer();
+            this._loadServer();
+        }
     }
 
     _saveServer(__jsonFilePath = `${__dirname}/saved/redisdb.json`) {
@@ -105,6 +110,8 @@ module.exports = class EasyRestfulDBServer {
     }
 
     _openClient(port) {
+        if(this._isServerValid() == false) return;
+        
         const redis = require("redis");
         if (this.usingPromise) bluebird.promisifyAll(redis.RedisClient.prototype);
 

@@ -14,6 +14,12 @@ module.exports = class EasyRestful {
 
         this.server.DB = this.dbserver;
     }
+
+    static get(opts) {
+        opts.forEach((value, key) => util.set(key, value));
+        return this.default;
+    }
+
     static get default() {
         return new EasyRestful(EasyRestfulServer.default, EasyRestfulDBServer.default);
     }
