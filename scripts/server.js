@@ -36,12 +36,15 @@ module.exports = class EasyRestfulServer {
             if (this.isValid(key) === false) {
                 response.send('wrong address');
             } else {
-                const bind_callback = callback.bind({
+                const _module = {
                     params: requset.params,
-                    body: requset.body,
-                    db: this.db
-                });
-                bind_callback(
+                    body: this.adaptor.usingBodyParser ? requset.body : {},
+                    query: requset.query,
+                    db: this.db,
+                    callback
+                };
+                const moduleCallback = _module.callback.bind(_module);
+                moduleCallback(
                     (message, usingLog = true) => {
                         DEBUG && usingLog && log.log(`[${HTTPMethod}] ${regax} -> ${message}`);
                         if (typeof message === "object") {
@@ -74,9 +77,17 @@ class ServerAdaptor {
 class ExpressServerAdaptor extends ServerAdaptor {
     constructor(port) {
         super();
+        // optional
+        this.usingBodyParser = false;
+
         const express = require('express');
         this.app = express();
         this.app.use(express.static('public'));
+        if (this.usingBodyParser) {
+            const bodyParser = require('body-parser');
+            app.use(bodyParser.json());
+            app.use(bodyParser.urlencoded({ extended: true }));
+        }
         this.server = this.app.listen(port, () => {
             log.log("[express-server] start on port", port)
         });
