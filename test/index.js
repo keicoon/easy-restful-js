@@ -38,3 +38,8 @@ EasyRestful.register('/log', function (resolve, reject) {
 EasyRestful.register('/exit', function (resolve, reject) {
     EasyRestful.close();
 });
+
+setTimeout(() => {
+    console.log('Automatically exited "EasyRestful".');
+    EasyRestful.close();
+}, 5000)
