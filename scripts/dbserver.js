@@ -8,6 +8,7 @@ module.exports = class EasyRestfulDBServer {
         // optional
         this.usingPromise = false;
         this.usingSave = true;
+        this.savedFilePath = util.get('saved-file-path');
 
         this._openServer(port);
         this._openClient(port);
@@ -18,21 +19,25 @@ module.exports = class EasyRestfulDBServer {
     }
 
     close() {
-        if (this.usingSave) {
-            this._saveServer();
-        }
+        const _close = (() => {
+            this.client && this.client.end(true);
+            this.server && this.server.close();
+        }).bind(this);
 
-        this.client.end(true);
-        this.server.close();
+        if (this.usingSave) {
+            this._saveServer(this.savedFilePath).then(_close).catch(_close);
+        } else {
+            _close();
+        }
     }
 
     get_callback(key, callback) {
-        this.client.get(key, (err, reply) => {
+        this.client.get(key, function (err, reply) {
             let result;
             if (reply == null) { err = "can find key"; }
             else { result = reply.toString(); }
-            DEBUG && (err == null ? log.log(`[redis-client] get : ${result}`)
-                : log.log(`[redis-client] get fail : ${key} -> ${err}`)
+            DEBUG && (err == null ? log.log(`[redis-client] get -> ${key} -> ${result}`)
+                : log.log(`[redis-client] get fail -> ${key} -> ${err}`)
             );
             callback(result);
         });
@@ -48,9 +53,9 @@ module.exports = class EasyRestfulDBServer {
     }
 
     set(key, value) {
-        this.client.set(key, value, (err, reply) => {
-            DEBUG && (err == null ? log.log(`[redis-client] set : ${key} -> ${reply.toString()}`)
-                : log.log(`[redis-client] set fail : ${key} -> ${err}`)
+        this.client.set(key, value, function (err, reply) {
+            DEBUG && (err == null ? log.log(`[redis-client] set -> ${key}:${value} -> ${reply.toString()}`)
+                : log.log(`[redis-client] set fail -> ${key} -> ${err}`)
             );
         });
     }
@@ -75,49 +80,64 @@ module.exports = class EasyRestfulDBServer {
                     : log.log(`[redis-server] open failed in port ${port} : ${err}.`)
             })
 
-            this._loadServer();
+            this._loadServer(this.savedFilePath);
         }
     }
 
-    _saveServer(__jsonFilePath = `${__dirname}/saved/redisdb.json`) {
-        this.client.keys('*', (err, keys) => {
-            var r = {};
-            let savedKeyNum = 0;
-            function saveFile() {
-                if (++savedKeyNum >= keys.length) {
-                    fs.writeFile(__jsonFilePath, JSON.stringify(r));
-                    log.log(`[redis-client] ${__jsonFilePath} saved.`);
-                }
-            }
-            keys.forEach(() => {
-                this.get_callback(key, (err, value) => {
-                    (DEBUG && err) && log.log(`[redis-client] saveServer fail.`);
-                    r[key] = value;
-                    saveFile();
-                });
-            });
+    _saveServer(__jsonFilePath) {
+        if (this._isServerValid() == false || __jsonFilePath == undefined) return Promise.reject();
+
+        return new Promise((resolve, reject) => {
+            this.client.multi()
+                .keys('*', function (err, keys) {
+                    if (err) return reject(err);
+
+                    let json = {};
+                    let savedKeyNum = 0;
+                    function saveFile() {
+                        if (++savedKeyNum >= keys.length) {
+                            fs.writeFileSync(__jsonFilePath, JSON.stringify(json, null, '\t'), 'utf8');
+                            log.log(`[redis-client] ${__jsonFilePath} saved.`);
+                            resolve();
+                        }
+                    }
+
+                    if (keys.length < 1) return reject();
+
+                    keys.forEach(key => {
+                        this.get_callback(key, (value) => {
+                            json[key] = value;
+                            saveFile();
+                        });
+                    });
+                }.bind(this))
+                .exec(function (err, replies) { });
         });
     }
 
-    _loadServer(__jsonFilePath = `${__dirname}/../saved/redisdb.json`) {
-        fs.readFile(__jsonFilePath, 'utf8', (err, text) => {
+    _loadServer(__jsonFilePath) {
+        if(__jsonFilePath == undefined) return;
+
+        fs.readFile(__jsonFilePath, 'utf8', ((err, text) => {
             const json = JSON.parse(text);
             if (json && Object.keys(json).length > 0) {
-                json.forEach((value, key) => this.set(key, json));
+                for (const key in json) {
+                    this.set(key, json[key]);
+                }
                 log.log(`[redis-client] ${__jsonFilePath} loaded.`);
             }
-        })
+        }).bind(this));
     }
 
     _openClient(port) {
-        if(this._isServerValid() == false) return;
-        
+        if (this._isServerValid() == false) return;
+
         const redis = require("redis");
         if (this.usingPromise) bluebird.promisifyAll(redis.RedisClient.prototype);
 
         this.client = redis.createClient(port);
         log.log(`[redis-client] try to connect ${port}`);
-        this.client.on("error", err => {
+        this.client.on("error", function (err) {
             log.log(`[redis-server] connect failed in port ${port} : ${err}`);
         });
     }

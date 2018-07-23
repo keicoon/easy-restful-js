@@ -1,7 +1,8 @@
 
 const EasyRestful = require('../../easy-restful.js').default;
 // const EasyRestful = require('../../easy-restful.js').get({
-//     "redis-server-bin-path": '/opt/local/bin/redis-server'
+//     'redis-server-bin-path': '/Users/jo/Downloads/redis-server',
+//     'saved-file-path': '/Users/jo/Documents/easy-restful.js/saved/redisdb.json'
 // });
 /* TestCase 'start listen' and get text */
 const key = EasyRestful.register('/hello', function (resolve, reject) {
@@ -34,12 +35,8 @@ EasyRestful.register('/dbGet', function (resolve, reject) {
 EasyRestful.register('/log', function (resolve, reject) {
     resolve(EasyRestful.log, false);
 });
-/* TestCase exit */
-EasyRestful.register('/exit', function (resolve, reject) {
-    EasyRestful.close();
-});
 
 setTimeout(() => {
     console.log('Automatically exited "EasyRestful".');
     EasyRestful.close();
-}, 5000)
+}, 5000);

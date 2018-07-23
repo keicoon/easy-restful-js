@@ -16,7 +16,9 @@ module.exports = class EasyRestful {
     }
 
     static get(opts) {
-        opts.forEach((value, key) => util.set(key, value));
+        for (const key in opts) {
+            util.set(key, opts[key]);
+        }
         return this.default;
     }
 

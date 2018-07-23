@@ -24,6 +24,10 @@ module.exports = class EasyRestfulServer {
         return !this.blacklist[hashKey];
     }
 
+    close() {
+        this.adaptor.server.close();
+    }
+
     setIgnoreRegax(hashKey) {
         this.blacklist[hashKey] = true;
     }
