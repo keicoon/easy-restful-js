@@ -1,6 +1,8 @@
 # EASY_RESTFUL.JS
-- Provice simple design to resultful service and support `npm` module
+[![npm](https://img.shields.io/npm/v/pixel-js-k.svg)](https://www.npmjs.com/package/pixel-js-k)
+![travis](https://travis-ci.org/keicoon/easy-restful.js.svg?branch=master)  
 ## Features
+- Provice simple design to resultful service and support `npm` module
 - Simple interface
 - support customize `server`, `db-server`
 - default server `express`
@@ -9,6 +11,10 @@
 ### start
 ```
 const EasyRestful = require('easy-restful.js').default;
+// const EasyRestful = require('../../easy-restful.js').get({
+//     'redis-server-bin-path': '/Users/jo/Downloads/redis-server',
+//     'saved-file-path': '/Users/jo/Documents/easy-restful.js/saved/redisdb.json'
+// });
 ```
 ### register simple restful-api
 ```
