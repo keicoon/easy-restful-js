@@ -1,16 +1,14 @@
 
-const EasyRestfulServer = require('server');
-const EasyRestfulDBServer = require('dbserver');
-const util = require('util');
-util.setConfig('isdebug', true);
+const util = require('./util.js');
+util.set('isdebug', true);
+const log = new (require('./log.js'))();
+util.set('log', log);
+
+const EasyRestfulServer = require('./server.js');
+const EasyRestfulDBServer = require('./dbserver.js');
 
 module.exports = class EasyRestful {
     constructor(server, dbserver) {
-        const Log = require('log');
-        this.log = new Log();
-        util.set('log', this.log);
-        util.set('isdebug', true);
-        
         this.server = server;
         this.dbserver = dbserver;
 
@@ -27,18 +25,19 @@ module.exports = class EasyRestful {
         }
     }
 
-    get log() { return this.log.toString(); }
+    get log() { return log.toString(); }
 
     close() {
         this.dbserver.close();
+        this.server.close();
     }
-    
+
     register(HTTPMethod, regax, callback) {
         if (typeof regax === 'function') {
             callback = regax; regax = HTTPMethod; HTTPMethod = 'GET';
         }
         this.server.command(HTTPMethod, regax, callback);
-        return util.generateHashKey(HTTPMethod, regax);
+        return util.generateHashKey(HTTPMethod + regax);
     }
 
     unregister(hashKey) {

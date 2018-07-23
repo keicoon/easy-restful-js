@@ -1,9 +1,10 @@
-const util = require('util');
-const DEBUG = util.getConfig('isdebug');
+const util = require('./util.js');
+const DEBUG = util.get('isdebug');
+const log = util.get('log');
+const prettyHtml = require('json-pretty-html').default;
 
 module.exports = class EasyRestfulServer {
     constructor(port, serverAdaptorClass) {
-        this.log = util.get('log');
         this.adaptor = new serverAdaptorClass(port);
         this.blacklist = new Map();
         return this;
@@ -28,23 +29,37 @@ module.exports = class EasyRestfulServer {
     }
 
     command(HTTPMethod, regax, callback) {
-
+        log.log(`[express-server] restfulAPI ${HTTPMethod} -> ${regax}`);
         function warppingCallback(requset, response) {
             const key = util.generateHashKey(HTTPMethod + regax);
 
             if (this.isValid(key) === false) {
-                resonse.to('wrong address');
+                response.send('wrong address');
             } else {
-                callback(message => {
-                    DEBUG && this.log.log(`[${HTTPMethod}] ${regax} -> ${message}`);
-                    resonse.to(message);
-                }, reqest.params, this.db);
+                const bind_callback = callback.bind({
+                    params: requset.params,
+                    body: requset.body,
+                    db: this.db
+                });
+                bind_callback(
+                    (message, usingLog = true) => {
+                        DEBUG && usingLog && log.log(`[${HTTPMethod}] ${regax} -> ${message}`);
+                        if (typeof message === "object") {
+                            message = prettyHtml(message, message.dimensions);
+                        }
+                        response.send(message);
+                    },
+                    error => {
+                        response.status(404).json({ error });
+                    }
+                );
             }
         }
+
         if (this.adaptor[HTTPMethod] === undefined) {
-            DEBUG && this.log.log(`unsupport command ${HTTPMethod}`);
+            DEBUG && log.log(`unsupport command ${HTTPMethod}`);
         } else {
-            this.adaptor[HTTPMethod](regax, warppingCallback);
+            this.adaptor[HTTPMethod](regax, warppingCallback.bind(this));
         }
     }
 }
@@ -58,12 +73,13 @@ class ServerAdaptor {
 /* This class has 'express' dependency. */
 class ExpressServerAdaptor extends ServerAdaptor {
     constructor(port) {
+        super();
         const express = require('express');
         this.app = express();
+        this.app.use(express.static('public'));
         this.server = this.app.listen(port, () => {
-            this.log.log("Express server has started on port", port)
+            log.log("[express-server] start on port", port)
         });
-        return this;
     }
 
     addSession() {

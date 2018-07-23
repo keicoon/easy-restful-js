@@ -1,42 +1,37 @@
 
-const EasyRestful = require('easy-restful.js').default;
+const EasyRestful = require('../../easy-restful.js').default;
 /* TestCase 'start listen' and get text */
-const key = EasyRestful.register('/hello', (send) => {
-    send('hello restful api world');
+const key = EasyRestful.register('/hello', (resolve, reject) => {
+    resolve('hello restful api world');
 });
 /* TestCase 'stop listen' */
-EasyRestful.register('/stophello', (send) => {
+EasyRestful.register('/stophello', (resolve, reject) => {
     EasyRestful.unrgister(key);
-    send('success: stophello');
+    resolve('success: stophello');
 });
 /* TestCase 'stop listen' and get json */
-EasyRestful.register('/test', (send) => {
-    send({
-        type: 'json',
-        content: JSON.stringify({ "a": 1, "b": "bb" })
-    });
+EasyRestful.register('/test', (resolve, reject) => {
+    resolve({ "a": 1, "b": "bb" });
 });
 /* TestCase set data using redis-db */
-EasyRestful.register('PUT', '/dbAdd', (send, params, db) => {
-    db.set('key', value)
-    send('success: dbAdd');
+EasyRestful.register('POST', '/dbAdd/:value', (resolve, reject) => {
+    this.db.set('key', this.params.value)
+    resolve(`[success] dbAdd : ${this.params.value}`);
 });
 /* TestCase get data using redis-db */
-EasyRestful.register('/dbGet', (send, params, db) => {
-    db.get_callback('key', (value) => {
-        send({
-            type: 'json',
-            content: value
-        });
+EasyRestful.register('/dbGet', (resolve, reject) => {
+    this.db.get_callback('key', (value) => {
+        resolve(value);
     });
-    // db.get('key').then(value => {
-    //     send({
-    //         type: 'json',
-    //         content: value
-    //     });
+    // this.db.get('key').then(value => {
+    //     resolve(value);
     // });
 });
 /* TestCase log */
-EasyRestful.register('/log', (send) => {
-    send(EasyRestful.log);
+EasyRestful.register('/log', (resolve, reject) => {
+    resolve(EasyRestful.log, false);
+});
+/* TestCase exit */
+EasyRestful.register('/exit', (resolve, reject) => {
+    EasyRestful.close();
 });

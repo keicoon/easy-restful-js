@@ -12,53 +12,46 @@ const EasyRestful = require('easy-restful.js').default;
 ```
 ### register simple restful-api
 ```
-const key = EasyRestful.register('/hello', (send) => {
-    send('hello restful api world');
+const key = EasyRestful.register('/hello', (resolve, reject) => {
+    resolve('hello restful api world');
 });
 
-EasyRestful.register('/hellojson', (send) => {
-    send({
-        type: 'json',
-        content: JSON.stringify({ "a": 1, "b": "bb" })
-    });
+EasyRestful.register('/helloJson', (resolve, reject) => {
+    resolve({ "a": 1, "b": "bb" });
 });
 ```
 ### unreigister restful-api
 ```
-EasyRestful.register('/stophello', (send) => {
+EasyRestful.register('/stopHello', (resolve, reject) => {
     EasyRestful.unrgister(key);
-    send('success: stophello');
+    resolve('success: stophello');
 });
 ```
 ### using db
 ```
-EasyRestful.register('PUT', '/dbAdd', (send, params, db) => {
-    db.set('key', value)
-    send('success: dbAdd');
+EasyRestful.register('POST', '/dbAdd/:value', (resolve, reject) => {
+    this.db.set('key', this.params.value)
+    resolve(`[success] dbAdd : ${this.params.value}`);
 });
 
-EasyRestful.register('/dbGet', (send, params, db) => {
-    db.get_callback('key', (value) => {
-        send({
-            type: 'json',
-            content: value
-        });
+EasyRestful.register('/dbGet', (resolve, reject) => {
+    this.db.get_callback('key', (value) => {
+        resolve(value);
     });
-    // db.get('key').then(value => {
-    //     send({
-    //         type: 'json',
-    //         content: value
-    //     });
+    // this.db.get('key').then(value => {
+    //     resolve(value);
     // });
 });
 ```
 ### log
 ```
-EasyRestful.register('/log', (send) => {
-    send(EasyRestful.log);
+EasyRestful.register('/log', (resolve, reject) => {
+    resolve(EasyRestful.log, false);
 });
 ```
 ### close
 ```
-EasyRestful.close();
+EasyRestful.register('/exit', (resolve, reject) => {
+    EasyRestful.close();
+});
 ```

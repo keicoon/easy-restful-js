@@ -8,7 +8,7 @@ module.exports = class Log {
     }
 
     log(...params) {
-        this.logs.push(`[${Date.now()}]`, params);
-        console.log.call(console.log, params);
+        this.logs.push(`[${new Date(Date.now()).toLocaleString()}] ${params.toString()}`);
+        console.log.apply(console.log, params);
     }
 }
