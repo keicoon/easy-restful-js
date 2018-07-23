@@ -15,7 +15,7 @@ npm i easy-restful
 ### start
 ```
 const EasyRestful = require('easy-restful.js').default;
-// const EasyRestful = require('../../easy-restful.js').get({
+// const EasyRestful = require('easy-restful.js').get({
 //     'redis-server-bin-path': '/Users/jo/Downloads/redis-server',
 //     'saved-file-path': '/Users/jo/Documents/easy-restful.js/saved/redisdb.json'
 // });
