@@ -14,9 +14,16 @@ npm i easy-restful
 ### start
 ```
 const EasyRestful = require('easy-restful.js').default;
+// # in mac
 // const EasyRestful = require('easy-restful.js').get({
 //     'redis-server-bin-path': '/Users/jo/Downloads/redis-server',
 //     'saved-file-path': '/Users/jo/Documents/easy-restful.js/saved/redisdb.json'
+// });
+// # in win
+// const EasyRestful = require('easy-restful.js').get({
+//     'redis-server-bin-path': 'C:\\Program Files\\Redis\\redis-server.exe',
+//     'redis-server-conf': 'C:\\Program Files\\Redis\\conf\\redis-dist.conf',
+//     'saved-file-path': __dirname + '\\..\\data\\db.json'
 // });
 ```
 ### register simple restful-api
