@@ -1,6 +1,6 @@
 const util = require('./util.js');
 const fs = require('fs');
-const DEBUG = util.get('isdebug');
+const DEBUG = util.get('enable-debug-mode');
 const log = util.get('log');
 
 module.exports = class EasyRestfulDBServer {
@@ -69,12 +69,14 @@ module.exports = class EasyRestfulDBServer {
 
         const RedisServer = require('redis-server');
         const bin = util.get('redis-server-bin-path');
+        const conf = util.get('redis-server-conf');
+        
         log.log(`[redis-server] try to open ${port} ${bin}.`);
         if (bin === undefined) {
             log.log(`[redis-server] invalid bin path.`);
             return;
         } else {
-            this.server = new RedisServer({ port, bin });
+            this.server = new RedisServer({ port, bin, conf });
             this.server.open(err => {
                 (err === null) ? log.log(`[redis-server] open success in port ${port}.`)
                     : log.log(`[redis-server] open failed in port ${port} : ${err}.`)
@@ -119,7 +121,7 @@ module.exports = class EasyRestfulDBServer {
         if(__jsonFilePath == undefined) return;
 
         fs.readFile(__jsonFilePath, 'utf8', ((err, text) => {
-            const json = JSON.parse(text);
+            const json = JSON.parse(text || '{}');
             if (json && Object.keys(json).length > 0) {
                 for (const key in json) {
                     this.set(key, json[key]);

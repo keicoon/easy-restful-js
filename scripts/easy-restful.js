@@ -1,6 +1,7 @@
 
 const util = require('./util.js');
-util.set('isdebug', true);
+util.set('enable-debug-mode', true);
+util.set('use-pretty-html', false);
 const log = new (require('./log.js'))();
 util.set('log', log);
 

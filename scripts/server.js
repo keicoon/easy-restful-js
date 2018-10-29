@@ -1,7 +1,9 @@
 const util = require('./util.js');
-const DEBUG = util.get('isdebug');
+const DEBUG = util.get('enable-debug-mode');
 const log = util.get('log');
-const prettyHtml = require('json-pretty-html').default;
+let prettyHtml;
+const bPrettyHtml = util.get('use-pretty-html');
+if(bPrettyHtml) prettyHtml = require('json-pretty-html').default;
 
 module.exports = class EasyRestfulServer {
     constructor(port, serverAdaptorClass) {
@@ -51,7 +53,7 @@ module.exports = class EasyRestfulServer {
                 moduleCallback(
                     (message, usingLog = true) => {
                         DEBUG && usingLog && log.log(`[${HTTPMethod}] ${regax} -> ${message}`);
-                        if (typeof message === "object") {
+                        if (typeof message === "object" && bPrettyHtml) {
                             message = prettyHtml(message, message.dimensions);
                         }
                         response.send(message);
