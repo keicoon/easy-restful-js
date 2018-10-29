@@ -62,3 +62,9 @@ EasyRestful.register('/log', function (resolve, reject) {
 ```
 EasyRestful.close();
 ```
+
+## History
+- v1.1
+    - support windows
+- v1.0
+    - first release
