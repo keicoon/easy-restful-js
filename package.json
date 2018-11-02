@@ -1,6 +1,6 @@
 {
   "name": "easy-restful",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "easy restful-api server",
   "main": "index.js",
   "scripts": {
