@@ -3,11 +3,11 @@ const DEBUG = util.get('enable-debug-mode');
 const log = util.get('log');
 let prettyHtml;
 const bPrettyHtml = util.get('use-pretty-html');
-if(bPrettyHtml) prettyHtml = require('json-pretty-html').default;
+if (bPrettyHtml) prettyHtml = require('json-pretty-html').default;
 
 module.exports = class EasyRestfulServer {
     constructor(port, serverAdaptorClass) {
-        this.adaptor = new serverAdaptorClass(port);
+        this.adaptor = new serverAdaptorClass(port, (util.get('use-https') || false));
         this.blacklist = new Map();
         return this;
     }
@@ -79,9 +79,12 @@ class ServerAdaptor {
     PUT(regax, callback) { }
     DELETE(regax, callback) { }
 }
+const http=require('http'),
+    https = require('https'),
+    fs = require('fs')
 /* This class has 'express' dependency. */
 class ExpressServerAdaptor extends ServerAdaptor {
-    constructor(port) {
+    constructor(port, use_https) {
         super();
         // optional
         this.usingBodyParser = false;
@@ -89,14 +92,26 @@ class ExpressServerAdaptor extends ServerAdaptor {
         const express = require('express');
         this.app = express();
         this.app.use(express.static('public'));
+
+        if (use_https) {
+            const key_path = util.get('key-path');
+            this.server = https.createServer({
+                key: fs.readFileSync(key_path + '/key.pem'),
+                cert: fs.readFileSync(key_path + '/cert.pem')
+            }, this.app).listen(port, function () {
+                console.log("Https server listening on port " + port);
+            });
+        } else {
+            this.server = http.createServer(this.app).listen(port, function () {
+                console.log("Http server listening on port " + port);
+            });
+        }
+
         if (this.usingBodyParser) {
             const bodyParser = require('body-parser');
             app.use(bodyParser.json());
             app.use(bodyParser.urlencoded({ extended: true }));
         }
-        this.server = this.app.listen(port, () => {
-            log.log("[express-server] start on port", port)
-        });
     }
 
     addSession() {

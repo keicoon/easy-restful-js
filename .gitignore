@@ -1,4 +1,7 @@
 node_modules/*
 saved/*
-package-lock.json
+
 data/
+private/
+
+package-lock.json

@@ -71,6 +71,8 @@ EasyRestful.close();
 ```
 
 ## History
+- v1.2
+    - support https
 - v1.1
     - support windows
 - v1.0

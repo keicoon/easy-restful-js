@@ -1,7 +1,9 @@
 const EasyRestful = require('../../easy-restful.js').get({
     'redis-server-bin-path': 'C:\\Program Files\\Redis\\redis-server.exe',
     'redis-server-conf': 'C:\\Program Files\\Redis\\conf\\redis-dist.conf',
-    'saved-file-path': __dirname + '\\..\\data\\db.json'
+    'saved-file-path': __dirname + '\\..\\data\\db.json',
+    'use-https': true,
+    'key-path': './test/private'
 });
 /* TestCase 'start listen' and get text */
 const key = EasyRestful.register('/hello', function (resolve, reject) {
