@@ -72,7 +72,7 @@ EasyRestful.close();
 
 ## History
 - v1.2
-    - support https
+    - support https, port option
 - v1.1
     - support windows
 - v1.0

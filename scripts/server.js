@@ -13,7 +13,8 @@ module.exports = class EasyRestfulServer {
     }
 
     static get default() {
-        return new EasyRestfulServer(3000, ExpressServerAdaptor);
+        const port = util.get('server-port') || 3000
+        return new EasyRestfulServer(port, ExpressServerAdaptor);
     }
 
     static get defaultServerAdaptorClass() {
@@ -79,15 +80,15 @@ class ServerAdaptor {
     PUT(regax, callback) { }
     DELETE(regax, callback) { }
 }
-const http=require('http'),
+const http = require('http'),
     https = require('https'),
     fs = require('fs')
 /* This class has 'express' dependency. */
 class ExpressServerAdaptor extends ServerAdaptor {
     constructor(port, use_https) {
         super();
-        // optional
-        this.usingBodyParser = false;
+
+        this.usingBodyParser = util.get('use-body-parser') || false;
 
         const express = require('express');
         this.app = express();
@@ -109,8 +110,10 @@ class ExpressServerAdaptor extends ServerAdaptor {
 
         if (this.usingBodyParser) {
             const bodyParser = require('body-parser');
-            app.use(bodyParser.json());
-            app.use(bodyParser.urlencoded({ extended: true }));
+            this.app.use(bodyParser.json());
+            this.app.use(bodyParser.urlencoded({ extended: true }));
+        } else {
+            this.app.use(express.static('public'));
         }
     }
 
